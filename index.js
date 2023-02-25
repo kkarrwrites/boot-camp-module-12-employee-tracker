@@ -116,8 +116,7 @@ class Tracker {
 
   // TODO: Which employee's role do you want to update? Which role do you want to assign the selected employee?
   // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
-  updateEmployeeRole() {}
-  addEmployee() {
+  updateEmployeeRole() {
     inquirer.prompt([
       {
         type: "rawlist",
