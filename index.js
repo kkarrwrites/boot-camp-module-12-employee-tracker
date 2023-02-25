@@ -69,11 +69,70 @@ class Tracker {
     );
   }
 
-  // TODO: What is the employee's first name? What is the employee's last name? What is the employee's role? Who is the employee's manager?
-  addEmployee() {}
+  // TODO: What is the employee's role? Who is the employee's manager?
+  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
+  addEmployee() {
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "first_name",
+        message: "What is the employee's first name?",
+        validate: (input) => {
+          if (input) {
+            return true;
+          } else {
+            console.log("Please enter the employee's first name.");
+            return false;
+          }
+        },
+      },
+      {
+        type: "input",
+        name: "last_name",
+        message: "What is the employee's last name?",
+        validate: (input) => {
+          if (input) {
+            return true;
+          } else {
+            console.log("Please enter the employee's last name.");
+            return false;
+          }
+        },
+      },
+      {
+        type: "rawlist",
+        name: "role",
+        message: "What is the employee's role?",
+        choices: [],
+      },
+      {
+        type: "rawlist",
+        name: "manager",
+        message: "Who is the employee's manager?",
+        choices: [],
+      },
+    ]);
+  }
 
   // TODO: Which employee's role do you want to update? Which role do you want to assign the selected employee?
+  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
   updateEmployeeRole() {}
+  addEmployee() {
+    inquirer.prompt([
+      {
+        type: "rawlist",
+        name: "employee",
+        message: "Which employee's role do you want to update?",
+        choices: [],
+      },
+      {
+        type: "rawlist",
+        name: "role",
+        message: "Which role do you want to assign the selected employee?",
+        choices: [],
+      },
+    ]);
+  }
 
   viewAllRoles() {
     db.query(
@@ -89,8 +148,44 @@ class Tracker {
     );
   }
 
-  // TODO: What is the name of the role? What is the salary of the role? Which department does the role belong to?
-  addRole() {}
+  // TODO: Which department does the role belong to?
+  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
+  addRole() {
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "role",
+        message: "What is the name of the role?",
+        validate: (input) => {
+          if (input) {
+            return true;
+          } else {
+            console.log("Please enter the role's name.");
+            return false;
+          }
+        },
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the salary of the role?",
+        validate: (input) => {
+          if (input) {
+            return true;
+          } else {
+            console.log("Please enter the role's salary.");
+            return false;
+          }
+        },
+      },
+      {
+        type: "rawlist",
+        name: "department",
+        message: "Which department does the role belong to?",
+        choices: [],
+      },
+    ]);
+  }
 
   viewAllDepartments() {
     db.query(
