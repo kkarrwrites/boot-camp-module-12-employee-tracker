@@ -3,7 +3,6 @@ const env = require("dotenv").config();
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 
-// Connect to db
 const db = mysql.createConnection(
   {
     host: process.env.DB_HOST,
@@ -58,8 +57,7 @@ class Tracker {
 
   viewAllEmployees() {
     db.query(
-      // TODO: Add manager
-      `SELECT employees.id, employees.first_name, employees.last_name, roles.title AS title, departments.department_name AS department, roles.salary FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments on roles.department_id = departments.id`,
+      `SELECT employees.id, employees.first_name, employees.last_name, roles.title AS title, departments.department_name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments on roles.department_id = departments.id LEFT JOIN employees manager on manager.id = employees.manager_id`,
       (error, result) => {
         if (error) {
           console.error(error);
@@ -71,11 +69,11 @@ class Tracker {
     );
   }
 
-  addEmployee() {}
   // TODO: What is the employee's first name? What is the employee's last name? What is the employee's role? Who is the employee's manager?
+  addEmployee() {}
 
-  updateEmployeeRole() {}
   // TODO: Which employee's role do you want to update? Which role do you want to assign the selected employee?
+  updateEmployeeRole() {}
 
   viewAllRoles() {
     db.query(
@@ -91,8 +89,8 @@ class Tracker {
     );
   }
 
-  addRole() {}
   // TODO: What is the name of the role? What is the salary of the role? Which department does the role belong to?
+  addRole() {}
 
   viewAllDepartments() {
     db.query(
@@ -133,7 +131,6 @@ class Tracker {
             if (error) {
               console.error(error);
             } else {
-              this.viewAllDepartments();
               this.init();
             }
           }
