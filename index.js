@@ -183,8 +183,8 @@ class Tracker {
     );
   }
 
-  // TODO: Which department does the role belong to?
   addRole() {
+    let departmentArray = [];
     const departmentChoices = () =>
       db
         .promise()
@@ -193,46 +193,67 @@ class Tracker {
           let departmentChoices = result[0].map(
             (object) => object.department_name
           );
+          departmentArray.push(departmentChoices);
           return departmentChoices;
         })
         .catch((error) => {
           throw error;
         });
 
-    inquirer.prompt([
-      {
-        type: "input",
-        name: "role",
-        message: "What is the name of the role?",
-        validate: (input) => {
-          if (input) {
-            return true;
-          } else {
-            console.log("Please enter the role's name.");
-            return false;
-          }
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "role",
+          message: "What is the name of the role?",
+          validate: (input) => {
+            if (input) {
+              return true;
+            } else {
+              console.log("Please enter the role's name.");
+              return false;
+            }
+          },
         },
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "What is the salary of the role?",
-        validate: (input) => {
-          if (input) {
-            return true;
-          } else {
-            console.log("Please enter the role's salary.");
-            return false;
-          }
+        {
+          type: "input",
+          name: "salary",
+          message: "What is the salary of the role?",
+          validate: (input) => {
+            if (input) {
+              return true;
+            } else {
+              console.log("Please enter the role's salary.");
+              return false;
+            }
+          },
         },
-      },
-      {
-        type: "rawlist",
-        name: "department",
-        message: "Which department does the role belong to?",
-        choices: departmentChoices,
-      },
-    ]);
+        {
+          type: "rawlist",
+          name: "department",
+          message: "Which department does the role belong to?",
+          choices: departmentChoices,
+        },
+      ])
+      .then((answers) => {
+        let departmentFlat = departmentArray.flat();
+        let departmentId = departmentFlat.indexOf(answers.department) + 1;
+        db.query(
+          `INSERT INTO roles SET ?`,
+          {
+            title: answers.role,
+            salary: answers.salary,
+            department_id: departmentId,
+          },
+          (error, result) => {
+            if (error) {
+              console.error(error);
+            } else {
+              this.init();
+            }
+          }
+        );
+      });
   }
 
   viewAllDepartments() {
