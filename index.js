@@ -70,8 +70,19 @@ class Tracker {
   }
 
   // TODO: What is the employee's role? Who is the employee's manager?
-  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
   addEmployee() {
+    const roleChoices = () =>
+      db
+        .promise()
+        .query(`SELECT * FROM roles`)
+        .then((result) => {
+          let roleChoices = result[0].map((object) => object.title);
+          return roleChoices;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
     inquirer.prompt([
       {
         type: "input",
@@ -103,7 +114,7 @@ class Tracker {
         type: "rawlist",
         name: "role",
         message: "What is the employee's role?",
-        choices: [],
+        choices: roleChoices,
       },
       {
         type: "rawlist",
@@ -115,20 +126,45 @@ class Tracker {
   }
 
   // TODO: Which employee's role do you want to update? Which role do you want to assign the selected employee?
-  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
   updateEmployeeRole() {
+    const employeeChoices = () =>
+      db
+        .promise()
+        .query(`SELECT * FROM employees`)
+        .then((result) => {
+          let employeeChoices = result[0].map(
+            (object) => `${object.first_name} ${object.last_name}`
+          );
+          return employeeChoices;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
+    const roleChoices = () =>
+      db
+        .promise()
+        .query(`SELECT * FROM roles`)
+        .then((result) => {
+          let roleChoices = result[0].map((object) => object.title);
+          return roleChoices;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
     inquirer.prompt([
       {
         type: "rawlist",
         name: "employee",
         message: "Which employee's role do you want to update?",
-        choices: [],
+        choices: employeeChoices,
       },
       {
         type: "rawlist",
         name: "role",
         message: "Which role do you want to assign the selected employee?",
-        choices: [],
+        choices: roleChoices,
       },
     ]);
   }
@@ -148,8 +184,21 @@ class Tracker {
   }
 
   // TODO: Which department does the role belong to?
-  // https://stackoverflow.com/questions/63005429/passing-promises-with-mysql-nodejs
   addRole() {
+    const departmentChoices = () =>
+      db
+        .promise()
+        .query(`SELECT * FROM departments`)
+        .then((result) => {
+          let departmentChoices = result[0].map(
+            (object) => object.department_name
+          );
+          return departmentChoices;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
     inquirer.prompt([
       {
         type: "input",
@@ -181,7 +230,7 @@ class Tracker {
         type: "rawlist",
         name: "department",
         message: "Which department does the role belong to?",
-        choices: [],
+        choices: departmentChoices,
       },
     ]);
   }
@@ -232,5 +281,6 @@ class Tracker {
       });
   }
 }
+
 const tracker = new Tracker();
 tracker.init();
