@@ -69,64 +69,90 @@ class Tracker {
     );
   }
 
-  // TODO: What is the employee's role? Who is the employee's manager?
+  // TODO: Who is the employee's manager?
   addEmployee() {
+    let roleArray = [];
     const roleChoices = () =>
       db
         .promise()
         .query(`SELECT * FROM roles`)
         .then((result) => {
           let roleChoices = result[0].map((object) => object.title);
+          roleArray.push(roleChoices);
           return roleChoices;
         })
         .catch((error) => {
           throw error;
         });
 
-    inquirer.prompt([
-      {
-        type: "input",
-        name: "first_name",
-        message: "What is the employee's first name?",
-        validate: (input) => {
-          if (input) {
-            return true;
-          } else {
-            console.log("Please enter the employee's first name.");
-            return false;
-          }
+    let managerArray = [];
+    const managerChoices = () => db.promise().query().then();
+
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "What is the employee's first name?",
+          validate: (input) => {
+            if (input) {
+              return true;
+            } else {
+              console.log("Please enter the employee's first name.");
+              return false;
+            }
+          },
         },
-      },
-      {
-        type: "input",
-        name: "last_name",
-        message: "What is the employee's last name?",
-        validate: (input) => {
-          if (input) {
-            return true;
-          } else {
-            console.log("Please enter the employee's last name.");
-            return false;
-          }
+        {
+          type: "input",
+          name: "last_name",
+          message: "What is the employee's last name?",
+          validate: (input) => {
+            if (input) {
+              return true;
+            } else {
+              console.log("Please enter the employee's last name.");
+              return false;
+            }
+          },
         },
-      },
-      {
-        type: "rawlist",
-        name: "role",
-        message: "What is the employee's role?",
-        choices: roleChoices,
-      },
-      {
-        type: "rawlist",
-        name: "manager",
-        message: "Who is the employee's manager?",
-        choices: [],
-      },
-    ]);
+        {
+          type: "rawlist",
+          name: "role",
+          message: "What is the employee's role?",
+          choices: roleChoices,
+        },
+        // {
+        //   type: "rawlist",
+        //   name: "manager",
+        //   message: "Who is the employee's manager?",
+        //   choices: [],
+        // },
+      ])
+      .then((answers) => {
+        let roleFlat = roleArray.flat();
+        let roleId = roleFlat.indexOf(answers.role) + 1;
+        db.query(
+          `INSERT INTO employees SET ?`,
+          {
+            first_name: answers.first_name,
+            last_name: answers.last_name,
+            role_id: roleId,
+            manager_id: null,
+          },
+          (error, result) => {
+            if (error) {
+              console.error(error);
+            } else {
+              this.init();
+            }
+          }
+        );
+      });
   }
 
-  // TODO: Which employee's role do you want to update? Which role do you want to assign the selected employee?
   updateEmployeeRole() {
+    let employeeArray = [];
     const employeeChoices = () =>
       db
         .promise()
@@ -135,38 +161,61 @@ class Tracker {
           let employeeChoices = result[0].map(
             (object) => `${object.first_name} ${object.last_name}`
           );
+          employeeArray.push(employeeChoices);
           return employeeChoices;
         })
         .catch((error) => {
           throw error;
         });
 
+    let roleArray = [];
     const roleChoices = () =>
       db
         .promise()
         .query(`SELECT * FROM roles`)
         .then((result) => {
           let roleChoices = result[0].map((object) => object.title);
+          roleArray.push(roleChoices);
           return roleChoices;
         })
         .catch((error) => {
           throw error;
         });
 
-    inquirer.prompt([
-      {
-        type: "rawlist",
-        name: "employee",
-        message: "Which employee's role do you want to update?",
-        choices: employeeChoices,
-      },
-      {
-        type: "rawlist",
-        name: "role",
-        message: "Which role do you want to assign the selected employee?",
-        choices: roleChoices,
-      },
-    ]);
+    inquirer
+      .prompt([
+        {
+          type: "rawlist",
+          name: "employee",
+          message: "Which employee's role do you want to update?",
+          choices: employeeChoices,
+        },
+        {
+          type: "rawlist",
+          name: "role",
+          message: "Which role do you want to assign the selected employee?",
+          choices: roleChoices,
+        },
+      ])
+      .then((answers) => {
+        let employeeFlat = employeeArray.flat();
+        let employeeId = employeeFlat.indexOf(answers.employee) + 1;
+        let roleFlat = roleArray.flat();
+        let roleId = roleFlat.indexOf(answers.role) + 1;
+        db.query(
+          `UPDATE employees SET ? WHERE id = ${employeeId}`,
+          {
+            role_id: roleId,
+          },
+          (error, result) => {
+            if (error) {
+              console.error(error);
+            } else {
+              this.init();
+            }
+          }
+        );
+      });
   }
 
   viewAllRoles() {
