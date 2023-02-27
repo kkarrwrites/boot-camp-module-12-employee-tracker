@@ -69,7 +69,6 @@ class Tracker {
     );
   }
 
-  // TODO: Who is the employee's manager?
   addEmployee() {
     let roleArray = [];
     const roleChoices = () =>
@@ -86,7 +85,20 @@ class Tracker {
         });
 
     let managerArray = [];
-    const managerChoices = () => db.promise().query().then();
+    const managerChoices = () =>
+      db
+        .promise()
+        .query(`SELECT * FROM employees`)
+        .then((result) => {
+          let managerChoices = result[0].map(
+            (object) => `${object.first_name} ${object.last_name}`
+          );
+          managerArray.push(managerChoices);
+          return managerChoices;
+        })
+        .catch((error) => {
+          throw error;
+        });
 
     inquirer
       .prompt([
@@ -122,23 +134,25 @@ class Tracker {
           message: "What is the employee's role?",
           choices: roleChoices,
         },
-        // {
-        //   type: "rawlist",
-        //   name: "manager",
-        //   message: "Who is the employee's manager?",
-        //   choices: [],
-        // },
+        {
+          type: "rawlist",
+          name: "manager",
+          message: "Who is the employee's manager?",
+          choices: managerChoices,
+        },
       ])
       .then((answers) => {
         let roleFlat = roleArray.flat();
         let roleId = roleFlat.indexOf(answers.role) + 1;
+        let managerFlat = managerArray.flat();
+        let managerId = managerFlat.indexOf(answers.manager) + 1;
         db.query(
           `INSERT INTO employees SET ?`,
           {
             first_name: answers.first_name,
             last_name: answers.last_name,
             role_id: roleId,
-            manager_id: null,
+            manager_id: managerId,
           },
           (error, result) => {
             if (error) {
